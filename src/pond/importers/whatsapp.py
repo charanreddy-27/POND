@@ -12,7 +12,7 @@ import duckdb
 from dateutil import parser as dateparser
 
 from pond.config import Config
-from pond.importers.base import BaseImporter, ImportStats, insert_dedupe, register
+from pond.importers.base import BaseImporter, ImportStats, insert_dedupe, register, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import, row_key
 
 # Android: "12/03/24, 9:14 pm - Charan: bro match today?"
@@ -39,7 +39,15 @@ MEDIA_MARKERS = (
 )
 
 MESSAGE_COLS = [
-    "ts", "chat", "sender", "is_me", "text", "is_media", "word_count", "source", "dedupe_key",
+    "ts",
+    "chat",
+    "sender",
+    "is_me",
+    "text",
+    "is_media",
+    "word_count",
+    "source",
+    "dedupe_key",
 ]
 
 
@@ -55,7 +63,7 @@ def chat_name_from_file(path: Path) -> str:
     """'WhatsApp Chat with Rahul.txt' -> 'Rahul'; 'Family_chat.txt' -> 'Family'."""
     name = path.stem
     if name.lower().startswith("whatsapp chat with "):
-        name = name[len("WhatsApp Chat with "):]
+        name = name[len("WhatsApp Chat with ") :]
     if name.endswith("_chat"):
         name = name[: -len("_chat")]
     return name.strip() or path.stem
@@ -126,8 +134,9 @@ def parse_chat(text: str, tz: ZoneInfo) -> tuple[list[_Msg], list[str]]:
             continue
         body_l = body.strip().lower()
         is_media = body_l in MEDIA_MARKERS or body_l.startswith("<attached:")
-        msgs.append(_Msg(ts=ts, sender=sender.strip(), text=None if is_media else body,
-                         is_media=is_media))
+        msgs.append(
+            _Msg(ts=ts, sender=sender.strip(), text=None if is_media else body, is_media=is_media)
+        )
     return msgs, warnings
 
 
@@ -183,8 +192,12 @@ class WhatsAppImporter(BaseImporter):
 
             rows = [
                 (
-                    m.ts, chat, m.sender, m.sender.strip().lower() == me,
-                    m.text, m.is_media,
+                    m.ts,
+                    chat,
+                    m.sender,
+                    m.sender.strip().lower() == me,
+                    m.text,
+                    m.is_media,
                     len(m.text.split()) if m.text else None,
                     "whatsapp",
                     row_key("whatsapp", chat, m.ts.isoformat(), m.sender, m.text),
@@ -198,9 +211,11 @@ class WhatsAppImporter(BaseImporter):
             )
             if rows:
                 con.executemany("INSERT INTO _stg_msgs VALUES (?,?,?,?,?,?,?,?,?)", rows)
-            ins, skip = insert_dedupe(
-                con, "messages", MESSAGE_COLS, "SELECT * FROM _stg_msgs"
-            )
+            # DECISION: raw_* staging for .txt chats keeps the parsed,
+            # pre-dedupe rows tagged with the source file — more debuggable
+            # than raw text lines, which are already on disk anyway.
+            stage_raw(con, "raw_whatsapp", "SELECT ? AS file, * FROM _stg_msgs", [f.name])
+            ins, skip = insert_dedupe(con, "messages", MESSAGE_COLS, "SELECT * FROM _stg_msgs")
             stats.rows_inserted += ins
             stats.rows_skipped += skip
             record_import(con, sha, f, self.id, ins)

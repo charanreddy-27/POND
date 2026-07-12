@@ -42,9 +42,7 @@ def test_import_statement(hdfc, con, cfg, fixtures):
     # 7 data rows minus the Opening Balance row.
     assert stats.rows_inserted == 6
 
-    rows = con.execute(
-        "SELECT amount, merchant, category FROM transactions ORDER BY ts"
-    ).fetchall()
+    rows = con.execute("SELECT amount, merchant, category FROM transactions ORDER BY ts").fetchall()
     amounts = [float(r[0]) for r in rows]
     assert amounts == [-1240.0, -450.0, -2100.0, 85000.0, -3000.0, -5000.0]
 
@@ -77,11 +75,9 @@ def test_recategorize_after_rule_edit(hdfc, con, cfg, fixtures, pond_env):
         "  - match: 'swiggy'\n    category: food_delivery\n"
     )
     recategorize_all(con)
-    salary = con.execute(
-        "SELECT category FROM transactions WHERE amount > 0"
-    ).fetchone()[0]
+    salary = con.execute("SELECT category FROM transactions WHERE amount > 0").fetchone()[0]
     assert salary == "salary"
-    zomato = con.execute(
-        "SELECT category FROM transactions WHERE merchant = 'ZOMATO'"
-    ).fetchone()[0]
+    zomato = con.execute("SELECT category FROM transactions WHERE merchant = 'ZOMATO'").fetchone()[
+        0
+    ]
     assert zomato is None  # zomato rule removed -> uncategorized again

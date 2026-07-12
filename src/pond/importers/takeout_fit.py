@@ -12,7 +12,7 @@ import duckdb
 from dateutil import parser as dateparser
 
 from pond.config import Config
-from pond.importers.base import ImportStats, insert_dedupe
+from pond.importers.base import ImportStats, insert_dedupe, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import, row_key
 
 DAILIES_REL = Path("Fit") / "Daily activity metrics" / "Daily activity metrics.csv"
@@ -20,8 +20,14 @@ SESSIONS_REL = Path("Fit") / "All Sessions"
 
 DAILY_COLS = ["day", "steps", "distance_m", "calories", "active_min", "source", "dedupe_key"]
 ACTIVITY_COLS = [
-    "ts_start", "ts_end", "activity_type", "duration_min", "calories", "steps",
-    "source", "dedupe_key",
+    "ts_start",
+    "ts_end",
+    "activity_type",
+    "duration_min",
+    "calories",
+    "steps",
+    "source",
+    "dedupe_key",
 ]
 
 # Fuzzy header matching: column names vary by locale/version. First hit wins.
@@ -51,9 +57,7 @@ def run(
     return stats
 
 
-def _load_dailies(
-    f: Path, con: duckdb.DuckDBPyConnection, stats: ImportStats, force: bool
-) -> None:
+def _load_dailies(f: Path, con: duckdb.DuckDBPyConnection, stats: ImportStats, force: bool) -> None:
     stats.tables.add("daily_metrics")
     sha = file_sha256(f)
     if not force and already_imported(con, sha):
@@ -64,6 +68,7 @@ def _load_dailies(
         "CREATE OR REPLACE TEMP TABLE _stg_fit_daily AS SELECT * FROM read_csv_auto(?)",
         [str(f)],
     )
+    stage_raw(con, "raw_fit_daily", "SELECT * FROM _stg_fit_daily")
     headers = [r[0] for r in con.execute("DESCRIBE _stg_fit_daily").fetchall()]
     mapping: dict[str, str] = {}  # target column -> source header
     for header in headers:
@@ -82,13 +87,13 @@ def _load_dailies(
         return f'TRY_CAST("{src}" AS {cast}) AS {target}' if src else f"NULL::{cast} AS {target}"
 
     select = (
-        f"SELECT TRY_CAST(\"{mapping['day']}\" AS DATE) AS day, "
+        f'SELECT TRY_CAST("{mapping["day"]}" AS DATE) AS day, '
         f"{col('steps', 'INTEGER')}, {col('distance_m', 'DOUBLE')}, "
         f"{col('calories', 'DOUBLE')}, {col('active_min', 'DOUBLE')}, "
         "'google_fit' AS source, "
         "sha256(concat_ws('|', 'google_fit', "
-        f"  TRY_CAST(\"{mapping['day']}\" AS DATE)::VARCHAR)) AS dedupe_key "
-        f"FROM _stg_fit_daily WHERE TRY_CAST(\"{mapping['day']}\" AS DATE) IS NOT NULL"
+        f'  TRY_CAST("{mapping["day"]}" AS DATE)::VARCHAR)) AS dedupe_key '
+        f'FROM _stg_fit_daily WHERE TRY_CAST("{mapping["day"]}" AS DATE) IS NOT NULL'
     )
     ins, skip = insert_dedupe(con, "daily_metrics", DAILY_COLS, select)
     stats.rows_inserted += ins
@@ -155,14 +160,22 @@ def _load_sessions(
                 if "calories" in str(agg.get("metricName", "")).lower():
                     calories = agg.get("floatValue")
                     break
-            rows.append((
-                ts_start, ts_end, activity, duration, calories, None, "google_fit",
-                row_key(
-                    "google_fit",
-                    ts_start.astimezone(UTC).strftime("%Y-%m-%d %H:%M:%S"),
+            rows.append(
+                (
+                    ts_start,
+                    ts_end,
                     activity,
-                ),
-            ))
+                    duration,
+                    calories,
+                    None,
+                    "google_fit",
+                    row_key(
+                        "google_fit",
+                        ts_start.astimezone(UTC).strftime("%Y-%m-%d %H:%M:%S"),
+                        activity,
+                    ),
+                )
+            )
         con.execute(
             "CREATE OR REPLACE TEMP TABLE _stg_fit_sessions "
             "(ts_start TIMESTAMPTZ, ts_end TIMESTAMPTZ, activity_type VARCHAR, "
@@ -171,6 +184,7 @@ def _load_sessions(
         )
         if rows:
             con.executemany("INSERT INTO _stg_fit_sessions VALUES (?,?,?,?,?,?,?,?)", rows)
+        stage_raw(con, "raw_fit_sessions", "SELECT ? AS file, * FROM _stg_fit_sessions", [f.name])
         ins, skip = insert_dedupe(
             con, "activities", ACTIVITY_COLS, "SELECT * FROM _stg_fit_sessions"
         )

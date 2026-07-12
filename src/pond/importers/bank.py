@@ -20,18 +20,31 @@ from rich.table import Table
 
 from pond.categorize import category_sql_expr, load_rules, merchant_sql_expr
 from pond.config import Config, pond_home
-from pond.importers.base import BaseImporter, ImportStats, insert_dedupe, register
+from pond.importers.base import BaseImporter, ImportStats, insert_dedupe, register, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import
 
 TXN_COLS = [
-    "ts", "amount", "currency", "narration", "merchant", "category", "account",
-    "source", "dedupe_key",
+    "ts",
+    "amount",
+    "currency",
+    "narration",
+    "merchant",
+    "category",
+    "account",
+    "source",
+    "dedupe_key",
 ]
 
 # try_strptime cascade used when a profile has no explicit date format.
 FALLBACK_DATE_FORMATS = [
-    "%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y", "%d-%m-%y",
-    "%Y-%m-%d", "%d %b %Y", "%d-%b-%Y", "%d %B %Y",
+    "%d/%m/%Y",
+    "%d/%m/%y",
+    "%d-%m-%Y",
+    "%d-%m-%y",
+    "%Y-%m-%d",
+    "%d %b %Y",
+    "%d-%b-%Y",
+    "%d %B %Y",
 ]
 
 # Strip currency symbols, commas, spaces; keep digits, sign, dot, Cr/Dr flag.
@@ -147,7 +160,11 @@ class BankImporter(BaseImporter):
             else:
                 profile, header_row = matched
             ins, skip = _load_statement(
-                con, cfg, csv_f, profile, header_row,
+                con,
+                cfg,
+                csv_f,
+                profile,
+                header_row,
                 account or profile.name,
             )
             stats.rows_inserted += ins
@@ -156,9 +173,7 @@ class BankImporter(BaseImporter):
         return stats
 
 
-def _xlsx_to_csv(
-    con: duckdb.DuckDBPyConnection, f: Path, stats: ImportStats
-) -> Path | None:
+def _xlsx_to_csv(con: duckdb.DuckDBPyConnection, f: Path, stats: ImportStats) -> Path | None:
     """Convert an Excel statement to CSV via DuckDB's excel reader (best effort)."""
     out = f.with_suffix(".pond-tmp.csv")
     try:
@@ -168,9 +183,7 @@ def _xlsx_to_csv(
         )
         return out
     except duckdb.Error as e:
-        stats.warnings.append(
-            f"{f.name}: could not read Excel ({e}); re-export as CSV and retry"
-        )
+        stats.warnings.append(f"{f.name}: could not read Excel ({e}); re-export as CSV and retry")
         return None
 
 
@@ -207,15 +220,25 @@ def interactive_profile(f: Path) -> tuple[BankProfile, int]:
         debit_col = typer.prompt("Debit (withdrawal) column name")
         credit_col = typer.prompt("Credit (deposit) column name")
         style = "debit_credit"
-    date_format = typer.prompt(
-        "Date format (strptime, e.g. %d/%m/%Y) — empty to auto-detect",
-        default="", show_default=False,
-    ) or None
+    date_format = (
+        typer.prompt(
+            "Date format (strptime, e.g. %d/%m/%Y) — empty to auto-detect",
+            default="",
+            show_default=False,
+        )
+        or None
+    )
     name = typer.prompt("Name this profile (e.g. hdfc_savings)")
     profile = BankProfile(
-        name=name, header_signature=_signature(headers), header_row=header_row,
-        date_col=date_col, narration_col=narration_col, amount_style=style,
-        amount_col=amount_col, debit_col=debit_col, credit_col=credit_col,
+        name=name,
+        header_signature=_signature(headers),
+        header_row=header_row,
+        date_col=date_col,
+        narration_col=narration_col,
+        amount_style=style,
+        amount_col=amount_col,
+        debit_col=debit_col,
+        credit_col=credit_col,
         date_format=date_format,
     )
     save_profile(profile)
@@ -266,6 +289,7 @@ def _load_statement(
         "SELECT * FROM read_csv_auto(?, skip = ?, header = true, all_varchar = true)",
         [str(f), header_row],
     )
+    stage_raw(con, "raw_bank", "SELECT ? AS file, * FROM _stg_bank_raw", [f.name])
     tz = cfg.me.timezone.replace("'", "''")
     date_e, amount_e = _date_expr(profile), _amount_expr(profile)
     narr = f'trim("{profile.narration_col}")'

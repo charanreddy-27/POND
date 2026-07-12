@@ -7,7 +7,7 @@ from pathlib import Path
 import duckdb
 
 from pond.config import Config
-from pond.importers.base import ImportStats, insert_dedupe
+from pond.importers.base import ImportStats, insert_dedupe, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import
 
 REL_PATH = Path("My Activity") / "Search" / "MyActivity.json"
@@ -36,6 +36,7 @@ def run(
         "WHERE title LIKE 'Searched for %'",  # 'Visited …' entries are ignored
         [str(f)],
     )
+    stage_raw(con, "raw_takeout_search", "SELECT * FROM read_json_auto(?)", [str(f)])
     select = (
         "SELECT ts, query, 'google_search' AS source, "
         "sha256(concat_ws('|', 'google_search', "

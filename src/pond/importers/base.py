@@ -88,6 +88,30 @@ def maybe_extract_zip(path: Path) -> tuple[Path, tempfile.TemporaryDirectory | N
     return Path(tmp.name), tmp
 
 
+def stage_raw(
+    con: duckdb.DuckDBPyConnection,
+    table: str,
+    select_sql: str,
+    params: list[object] | None = None,
+) -> None:
+    """Append rows to a persistent ``raw_*`` staging table (§3.1), best-effort.
+
+    Raw tables exist for debugging/reprocessing only; schema drift between
+    export versions must never fail an import, so errors are swallowed and the
+    curated load always reads from the source directly.
+    """
+    try:
+        exists = con.execute(
+            "SELECT count(*) FROM information_schema.tables WHERE table_name = ?", [table]
+        ).fetchone()[0]
+        if not exists:
+            con.execute(f"CREATE TABLE {table} AS {select_sql}", params or [])
+        else:
+            con.execute(f"INSERT INTO {table} BY NAME {select_sql}", params or [])
+    except duckdb.Error:
+        pass
+
+
 def insert_dedupe(
     con: duckdb.DuckDBPyConnection,
     table: str,

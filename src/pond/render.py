@@ -37,13 +37,36 @@ def render_table(columns: list[str], rows: list[tuple], title: str | None = None
         return
     table = Table(title=title, header_style="bold cyan")
     for col in columns:
-        table.add_column(col, justify="right" if col.lower().endswith(
-            ("amount", "spend", "count", "total", "hours", "steps", "calories", "min")
-        ) else "left")
+        table.add_column(
+            col,
+            justify="right"
+            if col.lower().endswith(
+                ("amount", "spend", "count", "total", "hours", "steps", "calories", "min")
+            )
+            else "left",
+        )
     for row in rows:
         table.add_row(*(_fmt(v) for v in row))
     console.print(table)
-    console.print(f"[dim]{len(rows)} row{'s' if len(rows) != 1 else ''}[/dim]")
+    footer = f"{len(rows)} row{'s' if len(rows) != 1 else ''}"
+    footer += _numeric_summary(columns, rows)
+    console.print(f"[dim]{footer}[/dim]")
+
+
+def _numeric_summary(columns: list[str], rows: list[tuple]) -> str:
+    """Hero-demo footer: total/avg of the first numeric column when useful."""
+    if len(rows) < 2:
+        return ""
+    for i, col in enumerate(columns):
+        vals = [
+            r[i]
+            for r in rows
+            if isinstance(r[i], int | float | Decimal) and not isinstance(r[i], bool)
+        ]
+        if len(vals) == len(rows):
+            total = sum(vals)
+            return f" · {col}: total {_fmt(total)} · avg {_fmt(total / len(vals))}"
+    return ""
 
 
 def render_csv(columns: list[str], rows: list[tuple]) -> None:
@@ -57,10 +80,13 @@ def render_csv(columns: list[str], rows: list[tuple]) -> None:
 
 def render_json(columns: list[str], rows: list[tuple]) -> None:
     """Print a result set as a JSON array of objects."""
-    print(json.dumps(
-        [dict(zip(columns, row, strict=False)) for row in rows],
-        default=_fmt, indent=2,
-    ))
+    print(
+        json.dumps(
+            [dict(zip(columns, row, strict=False)) for row in rows],
+            default=_fmt,
+            indent=2,
+        )
+    )
 
 
 def render_import_summary(source: str, stats: ImportStats, ranges: dict[str, tuple]) -> None:

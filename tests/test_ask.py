@@ -50,19 +50,23 @@ def test_happy_path(con, cfg, fake_llm):
 
 
 def test_retry_on_bad_sql(con, cfg, fake_llm):
-    fake_llm([
-        "```sql\nSELECT nope FROM not_a_table\n```",
-        "```sql\nSELECT 1 AS ok\n```",
-    ])
+    fake_llm(
+        [
+            "```sql\nSELECT nope FROM not_a_table\n```",
+            "```sql\nSELECT 1 AS ok\n```",
+        ]
+    )
     result = ask("q", con, cfg)
     assert result.attempts == 2 and result.rows == [(1,)]
 
 
 def test_guardrail_violation_burns_an_attempt(con, cfg, fake_llm):
-    fake_llm([
-        "```sql\nDROP TABLE listens\n```",
-        "```sql\nSELECT 1 AS ok\n```",
-    ])
+    fake_llm(
+        [
+            "```sql\nDROP TABLE listens\n```",
+            "```sql\nSELECT 1 AS ok\n```",
+        ]
+    )
     result = ask("q", con, cfg)
     assert result.attempts == 2
     assert con.execute("SELECT count(*) FROM listens").fetchone()[0] == 0  # still exists

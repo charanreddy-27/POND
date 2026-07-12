@@ -14,7 +14,7 @@ import duckdb
 from icalendar import Calendar
 
 from pond.config import Config
-from pond.importers.base import ImportStats, insert_dedupe
+from pond.importers.base import ImportStats, insert_dedupe, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import, row_key
 
 CAL_DIR = "Calendar"
@@ -65,8 +65,10 @@ def run(
             title = str(ev.get("SUMMARY", "")) or None
             uid = str(ev.get("UID", "")) or None
             # §3.4: UID is the natural key; fall back to ts_start|title.
-            key = row_key("calendar", uid) if uid else row_key(
-                "calendar", ts_start.isoformat(), title
+            key = (
+                row_key("calendar", uid)
+                if uid
+                else row_key("calendar", ts_start.isoformat(), title)
             )
             rows.append((ts_start, ts_end, title, all_day, "google_calendar", key))
 
@@ -77,6 +79,7 @@ def run(
         )
         if rows:
             con.executemany("INSERT INTO _stg_cal VALUES (?,?,?,?,?,?)", rows)
+        stage_raw(con, "raw_calendar", "SELECT ? AS file, * FROM _stg_cal", [f.name])
         ins, skip = insert_dedupe(con, "calendar_events", EVENT_COLS, "SELECT * FROM _stg_cal")
         stats.rows_inserted += ins
         stats.rows_skipped += skip

@@ -60,6 +60,7 @@ pond import stmt.csv --source bank --account hdfc_savings
 pond log gym                              # manual escape hatch
 pond status                               # what's in the pond
 pond sql "SELECT count(*) FROM listens"   # raw SQL, no LLM
+pond schema                               # exactly what pond ask sends to the LLM
 export ANTHROPIC_API_KEY=sk-ant-...
 pond ask "top 5 artists by hours listened last month" --explain
 ```
@@ -157,6 +158,9 @@ privacy:
 transactions.account, and activities.activity_type (closed, low-cardinality
 sets) so questions like "spend on food delivery" map to exact values. `none`
 shares schema only. Narrations, messages, queries, titles — never.
+
+Run `pond schema` at any time to see, verbatim, the full payload `pond ask`
+would send.
 
 ## Data model (curated tables)
 

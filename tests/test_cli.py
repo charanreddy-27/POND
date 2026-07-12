@@ -61,7 +61,5 @@ def test_sql_command(pond_env):
 
 def test_unknown_source_rejected(pond_env, fixtures):
     runner.invoke(app, ["init"])
-    result = runner.invoke(
-        app, ["import", str(fixtures / "spotify"), "--source", "nope"]
-    )
+    result = runner.invoke(app, ["import", str(fixtures / "spotify"), "--source", "nope"])
     assert result.exit_code != 0

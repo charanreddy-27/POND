@@ -22,9 +22,7 @@ def test_full_takeout_import(con, cfg, fixtures):
     ]
 
     # YouTube: 4 entries minus 1 ad = 3; deleted video has NULL channel.
-    yt = con.execute(
-        "SELECT title, channel FROM youtube_watches ORDER BY ts"
-    ).fetchall()
+    yt = con.execute("SELECT title, channel FROM youtube_watches ORDER BY ts").fetchall()
     assert len(yt) == 3
     assert yt[0] == ("DuckDB in 100 Seconds", "Fireship")
     assert yt[1][1] is None
@@ -45,9 +43,7 @@ def test_full_takeout_import(con, cfg, fixtures):
     assert acts == [("weightlifting", 65.0, 412.7), ("badminton", 60.0, 350.2)]
 
     # Calendar: 3 events, one all-day, recurring stored as master only.
-    events = con.execute(
-        "SELECT title, all_day FROM calendar_events ORDER BY ts_start"
-    ).fetchall()
+    events = con.execute("SELECT title, all_day FROM calendar_events ORDER BY ts_start").fetchall()
     assert ("Amma birthday", True) in events
     assert len(events) == 3
 

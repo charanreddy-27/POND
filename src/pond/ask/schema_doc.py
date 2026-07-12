@@ -87,8 +87,7 @@ def vocab_section(con: duckdb.DuckDBPyConnection) -> str:
         vals = [
             r[0]
             for r in con.execute(
-                f"SELECT DISTINCT {col} FROM {table} "
-                f"WHERE {col} IS NOT NULL ORDER BY 1 LIMIT 50"
+                f"SELECT DISTINCT {col} FROM {table} WHERE {col} IS NOT NULL ORDER BY 1 LIMIT 50"
             ).fetchall()
         ]
         if vals:

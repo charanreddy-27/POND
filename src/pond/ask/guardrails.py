@@ -16,15 +16,37 @@ class GuardrailError(ValueError):
 
 
 FORBIDDEN_NODES: tuple[type[exp.Expression], ...] = (
-    exp.Insert, exp.Update, exp.Delete, exp.Create, exp.Drop, exp.Alter,
-    exp.Merge, exp.TruncateTable, exp.Attach, exp.Detach, exp.Copy,
-    exp.Pragma, exp.Set, exp.Command, exp.Transaction, exp.Use, exp.Grant,
+    exp.Insert,
+    exp.Update,
+    exp.Delete,
+    exp.Create,
+    exp.Drop,
+    exp.Alter,
+    exp.Merge,
+    exp.TruncateTable,
+    exp.Attach,
+    exp.Detach,
+    exp.Copy,
+    exp.Pragma,
+    exp.Set,
+    exp.Command,
+    exp.Transaction,
+    exp.Use,
+    exp.Grant,
 )
 
 # Table functions / functions that reach outside the database file.
 FORBIDDEN_FUNCTIONS = {
-    "read_csv", "read_csv_auto", "read_json", "read_json_auto", "read_parquet",
-    "read_xlsx", "read_text", "read_blob", "glob", "getenv",
+    "read_csv",
+    "read_csv_auto",
+    "read_json",
+    "read_json_auto",
+    "read_parquet",
+    "read_xlsx",
+    "read_text",
+    "read_blob",
+    "glob",
+    "getenv",
 }
 
 DEFAULT_LIMIT = 500

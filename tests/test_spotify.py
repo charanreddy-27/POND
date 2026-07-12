@@ -32,12 +32,10 @@ def test_timezone_localized(con, cfg, fixtures):
 
 def test_skipped_flag_only_in_extended(con, cfg, fixtures):
     SpotifyImporter().run(fixtures / "spotify", con, cfg)
-    assert con.execute(
-        "SELECT count(*) FROM listens WHERE skipped IS NOT NULL"
-    ).fetchone()[0] == 3
-    assert con.execute(
-        "SELECT skipped FROM listens WHERE track = 'Naatu Naatu'"
-    ).fetchone()[0] is True
+    assert con.execute("SELECT count(*) FROM listens WHERE skipped IS NOT NULL").fetchone()[0] == 3
+    assert (
+        con.execute("SELECT skipped FROM listens WHERE track = 'Naatu Naatu'").fetchone()[0] is True
+    )
 
 
 def test_reimport_is_noop(con, cfg, fixtures):

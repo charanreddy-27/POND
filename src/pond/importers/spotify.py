@@ -70,9 +70,7 @@ class SpotifyImporter(BaseImporter):
             record_import(con, sha, f, self.id, ins)
         return stats
 
-    def _load_account(
-        self, con: duckdb.DuckDBPyConnection, f: Path
-    ) -> tuple[int, int, list[str]]:
+    def _load_account(self, con: duckdb.DuckDBPyConnection, f: Path) -> tuple[int, int, list[str]]:
         """StreamingHistory*.json — endTime is UTC at minute precision."""
         con.execute(
             "CREATE OR REPLACE TEMP TABLE _stg_listens AS "
@@ -87,9 +85,7 @@ class SpotifyImporter(BaseImporter):
         self._stage_raw(con, "raw_spotify_account", f)
         return (*self._insert(con), [])
 
-    def _load_extended(
-        self, con: duckdb.DuckDBPyConnection, f: Path
-    ) -> tuple[int, int, list[str]]:
+    def _load_extended(self, con: duckdb.DuckDBPyConnection, f: Path) -> tuple[int, int, list[str]]:
         """Streaming_History_Audio_*.json — lifetime history, second precision."""
         con.execute(
             "CREATE OR REPLACE TEMP TABLE _stg_listens AS "
@@ -106,9 +102,7 @@ class SpotifyImporter(BaseImporter):
         )
         self._stage_raw(con, "raw_spotify_extended", f)
         warns: list[str] = []
-        n_null = con.execute(
-            "SELECT count(*) FROM _stg_listens WHERE track IS NULL"
-        ).fetchone()[0]
+        n_null = con.execute("SELECT count(*) FROM _stg_listens WHERE track IS NULL").fetchone()[0]
         if n_null:
             warns.append(f"{f.name}: skipped {n_null} rows with no track name (podcasts?)")
             con.execute("DELETE FROM _stg_listens WHERE track IS NULL")
@@ -118,21 +112,9 @@ class SpotifyImporter(BaseImporter):
     @staticmethod
     def _stage_raw(con: duckdb.DuckDBPyConnection, table: str, f: Path) -> None:
         """Keep the file as-is in a raw_* table for debugging (§3.1)."""
-        try:
-            exists = con.execute(
-                "SELECT count(*) FROM information_schema.tables WHERE table_name = ?", [table]
-            ).fetchone()[0]
-            if not exists:
-                con.execute(
-                    f"CREATE TABLE {table} AS SELECT * FROM read_json_auto(?)", [str(f)]
-                )
-            else:
-                con.execute(
-                    f"INSERT INTO {table} BY NAME SELECT * FROM read_json_auto(?)", [str(f)]
-                )
-        except duckdb.Error:
-            # Raw staging is best-effort; curated load reads the file directly.
-            pass
+        from pond.importers.base import stage_raw
+
+        stage_raw(con, table, "SELECT * FROM read_json_auto(?)", [str(f)])
 
     @staticmethod
     def _insert(con: duckdb.DuckDBPyConnection) -> tuple[int, int]:

@@ -41,9 +41,7 @@ def _make_client():
 
 def _complete(client, model: str, system: str, messages: list[dict[str, str]]) -> str:
     """One LLM call; returns the text of the reply."""
-    resp = client.messages.create(
-        model=model, max_tokens=1500, system=system, messages=messages
-    )
+    resp = client.messages.create(model=model, max_tokens=1500, system=system, messages=messages)
     return "".join(block.text for block in resp.content if hasattr(block, "text"))
 
 

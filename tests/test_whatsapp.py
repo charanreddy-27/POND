@@ -53,9 +53,7 @@ def test_import_sets_is_me_and_dedupes(con, cfg, fixtures):
     assert stats.rows_inserted == 9
     mine = con.execute("SELECT count(*) FROM messages WHERE is_me").fetchone()[0]
     assert mine == 3  # Charan appears 2x in Rahul chat, 1x in Gym Buddies
-    wc = con.execute(
-        "SELECT word_count FROM messages WHERE text = 'nice pic'"
-    ).fetchone()[0]
+    wc = con.execute("SELECT word_count FROM messages WHERE text = 'nice pic'").fetchone()[0]
     assert wc == 2
     again = imp.run(fixtures / "whatsapp", con, cfg)
     assert again.rows_inserted == 0 and again.files_skipped == 2

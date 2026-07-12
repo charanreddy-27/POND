@@ -42,8 +42,9 @@ def init(
 @app.command(name="import")
 def import_(
     path: Path = typer.Argument(..., exists=True, help="Export file, folder, or .zip"),
-    source: str = typer.Option(None, "--source", help="Force an importer: "
-                               "spotify | whatsapp | takeout | bank"),
+    source: str = typer.Option(
+        None, "--source", help="Force an importer: spotify | whatsapp | takeout | bank"
+    ),
     account: str = typer.Option(None, "--account", help="Account label for bank imports"),
     force: bool = typer.Option(False, "--force", help="Re-import files already in the ledger"),
 ) -> None:
@@ -66,8 +67,9 @@ def import_(
         else:
             importers = detect_importers(work_path)
             if not importers:
-                console.print(f"[red]No importer recognizes {path}.[/red] "
-                              f"Try --source {sorted(REGISTRY)}")
+                console.print(
+                    f"[red]No importer recognizes {path}.[/red] Try --source {sorted(REGISTRY)}"
+                )
                 raise typer.Exit(1)
             if len(importers) > 1:
                 console.print(
@@ -81,9 +83,14 @@ def import_(
         with console.status(f"importing via [bold]{cls.id}[/bold]…"):
             stats = cls().run(work_path, con, cfg, force=force, account=account)
         ts_col = {
-            "transactions": "ts", "messages": "ts", "listens": "ts",
-            "activities": "ts_start", "daily_metrics": "day", "searches": "ts",
-            "youtube_watches": "ts", "calendar_events": "ts_start",
+            "transactions": "ts",
+            "messages": "ts",
+            "listens": "ts",
+            "activities": "ts_start",
+            "daily_metrics": "day",
+            "searches": "ts",
+            "youtube_watches": "ts",
+            "calendar_events": "ts_start",
         }
         ranges = {t: db.date_range(con, t, ts_col[t]) for t in stats.tables}
         render_import_summary(cls.id, stats, ranges)
@@ -124,8 +131,9 @@ def log(
     con.close()
     if inserted:
         extra = f" ({minutes:g} min)" if minutes else ""
-        console.print(f"[green]✓[/green] logged [bold]{activity_type}[/bold] "
-                      f"on {ts_start:%Y-%m-%d}{extra}")
+        console.print(
+            f"[green]✓[/green] logged [bold]{activity_type}[/bold] on {ts_start:%Y-%m-%d}{extra}"
+        )
     else:
         console.print(f"[yellow]already logged[/yellow] {activity_type} on {ts_start:%Y-%m-%d}")
 
@@ -161,9 +169,9 @@ def sql(
         raise typer.Exit(1) from e
     finally:
         con.close()
-    {"table": render_table, "csv": render_csv, "json": render_json}.get(
-        fmt, render_table
-    )(result.columns, result.rows)
+    {"table": render_table, "csv": render_csv, "json": render_json}.get(fmt, render_table)(
+        result.columns, result.rows
+    )
 
 
 @app.command()
@@ -189,9 +197,9 @@ def ask(
         con.close()
     if explain:
         console.print(f"[dim]{result.sql}[/dim]\n")
-    {"table": render_table, "csv": render_csv, "json": render_json}.get(
-        fmt, render_table
-    )(result.columns, result.rows)
+    {"table": render_table, "csv": render_csv, "json": render_json}.get(fmt, render_table)(
+        result.columns, result.rows
+    )
     if result.attempts > 1:
         console.print(f"[dim](took {result.attempts} attempts)[/dim]")
 
@@ -213,6 +221,22 @@ def status() -> None:
     con.close()
     console.print(table)
     console.print(f"[dim]{imports} file(s) in the import ledger[/dim]")
+
+
+@app.command()
+def schema() -> None:
+    """Print exactly what `pond ask` would send to the LLM (privacy transparency)."""
+    from pond.ask.schema_doc import build_schema_doc
+
+    cfg = load_config()
+    con = db.connect(cfg)
+    doc = build_schema_doc(con, cfg)
+    con.close()
+    console.print(doc, markup=False, highlight=False)
+    console.print(
+        f"[dim]vocab_sharing = {cfg.privacy.vocab_sharing!r} — this text plus your "
+        "question is the entire payload; row data never leaves the machine.[/dim]"
+    )
 
 
 @app.command()

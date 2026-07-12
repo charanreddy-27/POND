@@ -15,9 +15,9 @@ from pond.config import category_rules_path
 # so the DR/CR form is tried first and the generic form anchors the capture
 # to the token right after 'UPI-'.
 MERCHANT_PATTERNS: list[str] = [
-    r"UPI/(?:DR|CR)/\d+/([A-Za-z0-9 .&_]+?)/",      # UPI/DR/6123.../ZOMATO/...
-    r"UPI[-/]([A-Za-z0-9 .&_]+?)[-/]",              # UPI-SWIGGY-swiggy@icici-...
-    r"POS[ /]\d*[ /]?([A-Za-z0-9 .&*_]+)",          # POS 4123 AMAZON PAY
+    r"UPI/(?:DR|CR)/\d+/([A-Za-z0-9 .&_]+?)/",  # UPI/DR/6123.../ZOMATO/...
+    r"UPI[-/]([A-Za-z0-9 .&_]+?)[-/]",  # UPI-SWIGGY-swiggy@icici-...
+    r"POS[ /]\d*[ /]?([A-Za-z0-9 .&*_]+)",  # POS 4123 AMAZON PAY
     r"(?:NEFT|IMPS|RTGS)[-/ ][A-Z0-9]*[-/ ]?([A-Za-z0-9 .&_]+)",
 ]
 
@@ -60,8 +60,7 @@ def category_sql_expr(rules: list[tuple[str, str]]) -> tuple[str, list[str]]:
     for pattern, category in rules:
         cat_lit = category.replace("'", "''")
         whens.append(
-            "WHEN regexp_matches(lower(coalesce(merchant, narration, '')), ?) "
-            f"THEN '{cat_lit}'"
+            f"WHEN regexp_matches(lower(coalesce(merchant, narration, '')), ?) THEN '{cat_lit}'"
         )
         params.append(pattern.lower())
     return "CASE " + " ".join(whens) + " ELSE NULL END", params
@@ -76,6 +75,4 @@ def recategorize_all(con: duckdb.DuckDBPyConnection, rules_path: Path | None = N
     con.execute(f"UPDATE transactions SET merchant = {merchant_sql_expr()}")
     case, params = category_sql_expr(load_rules(rules_path))
     con.execute(f"UPDATE transactions SET category = {case}", params)
-    return con.execute(
-        "SELECT count(*) FROM transactions WHERE category IS NOT NULL"
-    ).fetchone()[0]
+    return con.execute("SELECT count(*) FROM transactions WHERE category IS NOT NULL").fetchone()[0]

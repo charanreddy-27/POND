@@ -153,9 +153,14 @@ def table_summary(con: duckdb.DuckDBPyConnection) -> list[tuple[str, int, str | 
     """Per curated table: (name, row_count, min_date, max_date) for `pond status`."""
     out: list[tuple[str, int, str | None, str | None]] = []
     ts_col = {
-        "transactions": "ts", "messages": "ts", "listens": "ts",
-        "activities": "ts_start", "daily_metrics": "day", "searches": "ts",
-        "youtube_watches": "ts", "calendar_events": "ts_start",
+        "transactions": "ts",
+        "messages": "ts",
+        "listens": "ts",
+        "activities": "ts_start",
+        "daily_metrics": "day",
+        "searches": "ts",
+        "youtube_watches": "ts",
+        "calendar_events": "ts_start",
     }
     for table, col in ts_col.items():
         n, lo, hi = con.execute(

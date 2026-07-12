@@ -7,7 +7,7 @@ from pathlib import Path
 import duckdb
 
 from pond.config import Config
-from pond.importers.base import ImportStats, insert_dedupe
+from pond.importers.base import ImportStats, insert_dedupe, stage_raw
 from pond.ledger import already_imported, file_sha256, record_import
 
 REL_PATH = Path("YouTube and YouTube Music") / "history" / "watch-history.json"
@@ -40,6 +40,7 @@ def run(
         "  AND len(list_filter(coalesce(details, []), d -> d.name = 'From Google Ads')) = 0",
         [str(f)],
     )
+    stage_raw(con, "raw_takeout_youtube", "SELECT * FROM read_json_auto(?)", [str(f)])
     select = (
         "SELECT ts, title, channel, 'takeout' AS source, "
         "sha256(concat_ws('|', 'youtube', "

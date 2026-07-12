@@ -25,9 +25,7 @@ def test_weeks_flags_gym_after_activity(con):
         "INSERT INTO activities (ts_start, activity_type, source, dedupe_key) "
         "VALUES (CURRENT_DATE - INTERVAL 3 DAY, 'strength_training', 'manual', 'k1')"
     )
-    gym_weeks = con.execute(
-        "SELECT count(*) FROM weeks WHERE went_to_gym"
-    ).fetchone()[0]
+    gym_weeks = con.execute("SELECT count(*) FROM weeks WHERE went_to_gym").fetchone()[0]
     assert gym_weeks == 1
 
 
