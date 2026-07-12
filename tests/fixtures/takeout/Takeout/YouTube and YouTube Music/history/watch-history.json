@@ -1,0 +1,6 @@
+[
+  {"header": "YouTube", "title": "Watched DuckDB in 100 Seconds", "subtitles": [{"name": "Fireship", "url": "https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA"}], "time": "2026-02-11T19:04:00.000Z"},
+  {"header": "YouTube", "title": "Watched https://www.youtube.com/watch?v=deleted123", "time": "2026-02-12T20:00:00.000Z"},
+  {"header": "YouTube", "title": "Watched Some sponsored thing", "subtitles": [{"name": "AdChannel"}], "details": [{"name": "From Google Ads"}], "time": "2026-02-13T09:00:00.000Z"},
+  {"header": "YouTube", "title": "Watched Full Body Strength Routine", "subtitles": [{"name": "Jeff Nippard", "url": "https://www.youtube.com/@JeffNippard"}], "time": "2026-02-14T06:30:00.000Z"}
+]
