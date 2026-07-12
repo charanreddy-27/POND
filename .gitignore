@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# POND runtime data — never commit personal data
+*.duckdb
+*.duckdb.wal
+/data/
+.pond/
+*.pond-tmp.csv

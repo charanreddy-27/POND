@@ -1,0 +1,23 @@
+# POND starter merchant->category rules. Ordered: first match wins.
+# `match` is a case-insensitive regex tried against the extracted merchant,
+# falling back to the raw narration. Edit ~/.pond/category_rules.yaml and
+# run `pond categorize` to re-apply.
+rules:
+  - match: "swiggy|zomato|eatsure"
+    category: food_delivery
+  - match: "uber|ola|rapido|namma"
+    category: transport
+  - match: "bigbasket|blinkit|zepto|dmart|instamart"
+    category: groceries
+  - match: "amazon|flipkart|myntra"
+    category: shopping
+  - match: "netflix|spotify|hotstar|prime|youtube"
+    category: subscriptions
+  - match: "cult|gym|fitness"
+    category: fitness
+  - match: "irctc|makemytrip|indigo|goibibo|redbus"
+    category: travel
+  - match: "jio|airtel|bescom|broadband"
+    category: utilities
+  - match: "atm|cash wdl"
+    category: cash
