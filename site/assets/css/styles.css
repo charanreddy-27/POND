@@ -1,0 +1,1468 @@
+/* ==========================================================================
+   POND — design system
+   Style:      Dark Mode (OLED) · WCAG AAA target · zero build step
+   Palette:    "code dark + run green"
+   Type:       JetBrains Mono (display/code) + IBM Plex Sans (body)
+   ========================================================================== */
+
+/* --- Tokens ------------------------------------------------------------- */
+
+/* Every themed token is declared ONCE with light-dark(light, dark). The pair
+   of `color-scheme` rules below is the only place the theme is selected:
+   no [data-theme] block, no duplicated @media palette, nothing to keep in sync.
+   Contrast ratios noted inline are the measured worst case for that token. */
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --bg: light-dark(#f6f8fb, #0f172a);
+  --bg-deep: light-dark(#eef2f7, #080d1a);
+  --surface: light-dark(#ffffff, #131d33);
+  --surface-2: light-dark(#ffffff, #1e293b);
+  --surface-3: light-dark(#e2e8f0, #334155);
+
+  /* Ink */
+  --text: light-dark(#0f172a, #f8fafc);
+  --text-muted: light-dark(#475569, #a3b1c6); /* 7.1:1 light · 8.2:1 dark */
+  --text-faint: light-dark(#4f5d73, #7b8aa3); /* 4.7:1 light · 5.1:1 dark */
+
+  /* Accent — "run green". --accent carries button text, so light must be dark
+     enough for white on top: #16a34a only reaches 3.3:1, #15803d clears 5:1. */
+  --accent: light-dark(#15803d, #22c55e);
+  --accent-ink: light-dark(#ffffff, #052e16); /* text that sits ON the accent */
+  --accent-text: light-dark(#136434, #4ade80); /* accent used AS text, on --bg */
+  --accent-dim: light-dark(rgba(22, 163, 74, 0.1), rgba(34, 197, 94, 0.12));
+  --accent-line: light-dark(rgba(22, 163, 74, 0.3), rgba(34, 197, 94, 0.32));
+
+  /* Secondary accent, used sparingly for SQL / schema motifs */
+  --cyan: light-dark(#0e7490, #67e8f9);
+  --amber: light-dark(#b45309, #fbbf24);
+
+  --border: light-dark(rgba(15, 23, 42, 0.1), rgba(248, 250, 252, 0.1));
+  --border-strong: light-dark(rgba(15, 23, 42, 0.16), rgba(248, 250, 252, 0.18));
+  --shadow-color: light-dark(rgba(15, 23, 42, 0.22), rgba(0, 0, 0, 0.7));
+  --shadow-lg: 0 24px 60px -20px var(--shadow-color);
+  --shadow-md: 0 10px 30px -12px var(--shadow-color);
+
+  /* Type */
+  --font-display: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Space */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-24: 6rem;
+  --sp-32: 8rem;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+
+  --container: 1120px;
+  --prose: 68ch;
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 200ms;
+
+  /* Z-scale */
+  --z-nav: 30;
+  --z-toast: 50;
+}
+
+/* The toggle writes data-theme; these two rules are what it actually changes. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Browsers without light-dark() would resolve every themed token to nothing,
+   which is a blank page. Give them the dark palette as a flat fallback. */
+@supports not (color: light-dark(#000, #fff)) {
+  :root {
+    color-scheme: dark;
+
+    --bg: #0f172a;
+    --bg-deep: #080d1a;
+    --surface: #131d33;
+    --surface-2: #1e293b;
+    --surface-3: #334155;
+
+    --text: #f8fafc;
+    --text-muted: #a3b1c6;
+    --text-faint: #7b8aa3;
+
+    --accent: #22c55e;
+    --accent-ink: #052e16;
+    --accent-text: #4ade80;
+    --accent-dim: rgba(34, 197, 94, 0.12);
+    --accent-line: rgba(34, 197, 94, 0.32);
+
+    --cyan: #67e8f9;
+    --amber: #fbbf24;
+
+    --border: rgba(248, 250, 252, 0.1);
+    --border-strong: rgba(248, 250, 252, 0.18);
+    --shadow-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* --- Reset / base ------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Ambient glow behind the fold — pure CSS, no image weight. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20% -10% auto -10%;
+  height: 70vh;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(60% 50% at 25% 0%, var(--accent-dim), transparent 70%),
+    radial-gradient(50% 45% at 80% 10%, rgba(103, 232, 249, 0.07), transparent 70%);
+}
+
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--sp-4);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+h2 {
+  font-size: clamp(1.65rem, 3.6vw, 2.5rem);
+}
+h3 {
+  font-size: clamp(1.1rem, 2vw, 1.3rem);
+}
+
+p {
+  margin: 0 0 var(--sp-4);
+  max-width: var(--prose);
+}
+
+a {
+  color: var(--accent-text);
+  text-decoration-color: var(--accent-line);
+  text-underline-offset: 3px;
+  transition: color var(--dur) var(--ease);
+}
+a:hover {
+  color: var(--text);
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+:where(p, li) > code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.4em;
+  color: var(--text);
+}
+
+ul,
+ol {
+  padding-left: 1.15rem;
+  max-width: var(--prose);
+}
+li {
+  margin-bottom: var(--sp-2);
+}
+li::marker {
+  color: var(--accent-text);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--sp-12) 0;
+}
+
+/* Focus — visible everywhere, keyboard-first. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--sp-4);
+  top: -100%;
+  z-index: var(--z-toast);
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius);
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: var(--sp-4);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Layout ------------------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--sp-6);
+}
+
+section {
+  padding-block: clamp(var(--sp-12), 6vw, 5.5rem);
+}
+
+.section-head {
+  margin-bottom: var(--sp-12);
+}
+.section-head p {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: var(--accent-line);
+}
+
+.lede {
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.grid {
+  display: grid;
+  gap: var(--sp-6);
+}
+/* 26rem is deliberate: it forces exactly two columns inside the 1120px
+   container, so prose cards get a readable measure instead of three thin ones. */
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+}
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+/* --- Nav ---------------------------------------------------------------- */
+
+.nav {
+  position: sticky;
+  top: var(--sp-4);
+  z-index: var(--z-nav);
+  margin: var(--sp-4) auto 0;
+  width: calc(100% - 2rem);
+  max-width: var(--container);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: var(--shadow-md);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  margin-right: auto;
+  flex-shrink: 0;
+}
+.nav-brand:hover {
+  color: var(--accent-text);
+}
+.nav-brand svg {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-text);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+.nav-links li {
+  margin: 0;
+}
+.nav-links a {
+  display: block;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition:
+    color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.nav-links a[aria-current="page"] {
+  color: var(--accent-text);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+/* Below ~980px the in-page anchors go — you can reach those by scrolling.
+   The cross-page links stay, because nothing else on the page offers them. */
+@media (max-width: 980px) {
+  .nav-anchor {
+    display: none;
+  }
+  .nav {
+    padding-inline: var(--sp-4);
+  }
+}
+@media (max-width: 560px) {
+  /* Collapse the GitHub button to its icon so the page links keep their room. */
+  .nav-actions .btn-secondary {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+  .nav-actions .btn-secondary .btn-label {
+    display: none;
+  }
+  .nav-links a {
+    padding-inline: var(--sp-2);
+  }
+}
+@media (max-width: 400px) {
+  .nav {
+    gap: var(--sp-2);
+    padding-inline: var(--sp-3);
+  }
+}
+
+/* --- Buttons ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  padding: var(--sp-3) var(--sp-5, 1.25rem);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 6px 20px -8px var(--accent);
+}
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: color-mix(in srgb, var(--accent) 84%, var(--text));
+  color: var(--accent-ink);
+  box-shadow: 0 10px 28px -8px var(--accent);
+}
+
+.btn-secondary {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.btn-secondary:hover,
+.btn-secondary:focus-visible {
+  background: var(--surface-3);
+  border-color: var(--accent-line);
+  color: var(--text);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  padding-inline: var(--sp-4);
+}
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+.btn-icon:hover,
+.btn-icon:focus-visible {
+  color: var(--text);
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+}
+
+/* Theme toggle: the visible icon is the mode you'd switch TO, matching the
+   aria-label. Dark now → show the sun. No layout shift, just a swap. */
+#theme-toggle .icon-moon {
+  display: none;
+}
+#theme-toggle .icon-sun {
+  display: block;
+}
+:root[data-theme="light"] #theme-toggle .icon-moon {
+  display: block;
+}
+:root[data-theme="light"] #theme-toggle .icon-sun {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) #theme-toggle .icon-moon {
+    display: block;
+  }
+  :root:not([data-theme="dark"]) #theme-toggle .icon-sun {
+    display: none;
+  }
+}
+
+/* --- Hero --------------------------------------------------------------- */
+
+.hero {
+  padding-top: clamp(var(--sp-12), 8vw, var(--sp-24));
+  padding-bottom: clamp(var(--sp-12), 8vw, var(--sp-24));
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-12);
+  align-items: center;
+}
+@media (min-width: 1000px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    gap: var(--sp-12);
+  }
+}
+
+.hero h1 .accent {
+  color: var(--accent-text);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--accent-line);
+  border-radius: 999px;
+  background: var(--accent-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent-text);
+  margin-bottom: var(--sp-6);
+  text-decoration: none;
+}
+.badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-6);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+.hero-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.hero-meta svg {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-text);
+}
+
+/* --- Terminal ----------------------------------------------------------- */
+
+.terminal {
+  /* A terminal is dark in both themes — that is what a terminal is. These
+     locals shadow the theme tokens for everything inside the frame, which
+     also keeps the syntax colours at one known contrast ratio instead of two. */
+  --surface: #131d33;
+  --text: #f8fafc;
+  --text-faint: #8797b0;
+  --accent-text: #4ade80;
+  --cyan: #67e8f9;
+  --amber: #fbbf24;
+  --border: rgba(248, 250, 252, 0.1);
+
+  border: 1px solid rgba(248, 250, 252, 0.18);
+  border-radius: var(--radius-lg);
+  background: #080d1a;
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1.35vw, 0.84rem);
+  line-height: 1.75;
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+.terminal-dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--surface-3);
+}
+.terminal-title {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+
+.terminal-body {
+  padding: var(--sp-5, 1.25rem) var(--sp-4);
+  min-height: 22rem;
+  overflow-x: auto;
+  /* pre-wrap, not pre: a real terminal wraps a long command rather than
+     hiding the end of it behind a scrollbar. */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  tab-size: 2;
+}
+@media (min-width: 640px) {
+  .terminal-body {
+    padding: var(--sp-6);
+    min-height: 24rem;
+  }
+}
+
+.terminal-body .prompt {
+  color: var(--accent-text);
+  font-weight: 600;
+}
+.terminal-body .flag {
+  color: var(--amber);
+}
+.terminal-body .q {
+  color: var(--text);
+}
+.terminal-body .sql {
+  color: var(--cyan);
+  opacity: 0.9;
+}
+.terminal-body .dim {
+  color: var(--text-faint);
+}
+.terminal-body .head {
+  color: var(--text);
+  font-weight: 600;
+}
+.terminal-body .num {
+  color: var(--accent-text);
+}
+/* Box-drawing separators — decorative, and inside a role="img" region, so
+   never announced. Kept dim on purpose, but bright enough to actually see. */
+.terminal-body .rule {
+  color: #4a5a72;
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1.05s step-end infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: var(--sp-2) var(--sp-4);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+.chip:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.chip[aria-pressed="true"] {
+  color: var(--accent-text);
+  border-color: var(--accent-line);
+  background: var(--accent-dim);
+}
+
+.terminal-note {
+  margin-top: var(--sp-3);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+}
+
+/* --- Cards -------------------------------------------------------------- */
+
+.card {
+  padding: var(--sp-6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  transition:
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+.card:hover {
+  border-color: var(--border-strong);
+}
+.card h3 {
+  margin-bottom: var(--sp-2);
+  font-size: 1.05rem;
+}
+.card p {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  margin-bottom: 0;
+}
+.card p + p {
+  margin-top: var(--sp-3);
+}
+
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--sp-4);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  background: var(--accent-dim);
+  color: var(--accent-text);
+}
+.card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+a.card:hover {
+  border-color: var(--accent-line);
+  background: var(--surface-2);
+}
+a.card h3 {
+  color: var(--text);
+}
+a.card:hover h3 {
+  color: var(--accent-text);
+}
+
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.card-link svg {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--dur) var(--ease);
+}
+a.card:hover .card-link svg {
+  transform: translateX(3px);
+}
+
+/* --- Pipeline diagram --------------------------------------------------- */
+
+.pipeline {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  align-items: stretch;
+  margin-bottom: var(--sp-8);
+}
+
+.pipe-step {
+  position: relative;
+  padding: var(--sp-5, 1.25rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.pipe-step h3 {
+  font-size: 0.95rem;
+  margin-bottom: var(--sp-2);
+}
+.pipe-step p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+.pipe-step .step-n {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent-text);
+  display: block;
+  margin-bottom: var(--sp-3);
+}
+.pipe-step[data-boundary="true"] {
+  border-color: var(--accent-line);
+  background: linear-gradient(180deg, var(--accent-dim), transparent 60%), var(--surface);
+}
+
+.boundary-note {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding: var(--sp-4) var(--sp-5, 1.25rem);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius-lg);
+  background: var(--accent-dim);
+}
+.boundary-note svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent-text);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.boundary-note p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text);
+  max-width: none;
+}
+
+/* --- Tables ------------------------------------------------------------- */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 34rem;
+}
+th,
+td {
+  text-align: left;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+td code {
+  color: var(--accent-text);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+td:not(:first-child) {
+  color: var(--text-muted);
+}
+
+/* --- Code blocks -------------------------------------------------------- */
+
+.code {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-deep);
+  overflow: hidden;
+}
+.code pre {
+  margin: 0;
+  padding: var(--sp-5, 1.25rem);
+  padding-right: 3.5rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+.code .c {
+  color: var(--text-faint);
+}
+.code .p {
+  color: var(--accent-text);
+}
+
+.copy-btn {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+.copy-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.copy-btn[data-copied="true"] {
+  color: var(--accent-text);
+  border-color: var(--accent-line);
+}
+.copy-btn svg {
+  width: 15px;
+  height: 15px;
+}
+.copy-btn .icon-check {
+  display: none;
+}
+.copy-btn[data-copied="true"] .icon-check {
+  display: block;
+}
+.copy-btn[data-copied="true"] .icon-copy {
+  display: none;
+}
+
+/* --- Steps / numbered lists --------------------------------------------- */
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+  max-width: none;
+  display: grid;
+  gap: var(--sp-6);
+}
+.steps > li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: var(--sp-4);
+  margin: 0;
+}
+.steps > li::before {
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent-text);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--radius);
+  background: var(--accent-dim);
+  display: grid;
+  place-items: center;
+  height: 2.25rem;
+}
+.steps h3 {
+  font-size: 1rem;
+  margin-bottom: var(--sp-2);
+}
+.steps p {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  margin-bottom: var(--sp-3);
+}
+.steps .code {
+  margin-top: var(--sp-3);
+}
+
+/* --- Timeline ----------------------------------------------------------- */
+
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  position: relative;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent-line), var(--border) 70%, transparent);
+}
+.timeline > li {
+  position: relative;
+  padding-left: var(--sp-8);
+  padding-bottom: var(--sp-8);
+  margin: 0;
+}
+.timeline > li:last-child {
+  padding-bottom: 0;
+}
+.timeline > li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+}
+.timeline > li[data-hard="true"]::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-dim);
+}
+.timeline-date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  display: block;
+  margin-bottom: var(--sp-2);
+}
+.timeline h3 {
+  font-size: 1.05rem;
+  margin-bottom: var(--sp-2);
+}
+.timeline p {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  margin-bottom: 0;
+}
+
+/* --- Contact ------------------------------------------------------------ */
+
+.contact {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(70% 100% at 15% 0%, var(--accent-dim), transparent 70%),
+    var(--surface);
+  padding: clamp(var(--sp-8), 5vw, var(--sp-16));
+}
+.contact-grid {
+  display: grid;
+  gap: var(--sp-12);
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 900px) {
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--sp-16);
+  }
+}
+
+.form-field {
+  margin-bottom: var(--sp-4);
+}
+.form-field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--sp-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+.form-field textarea {
+  resize: vertical;
+  min-height: 8rem;
+  line-height: 1.6;
+}
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: var(--text-faint);
+}
+.form-field input:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.form-field .hint {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  margin: var(--sp-2) 0 0;
+}
+.form-field [data-error] {
+  display: none;
+  font-size: 0.82rem;
+  color: #fca5a5;
+  margin: var(--sp-2) 0 0;
+}
+:root[data-theme="light"] .form-field [data-error] {
+  color: #b91c1c;
+}
+.form-field.is-invalid [data-error] {
+  display: block;
+}
+.form-field.is-invalid input,
+.form-field.is-invalid textarea {
+  border-color: #f87171;
+}
+
+.form-status {
+  margin-top: var(--sp-4);
+  font-size: 0.9rem;
+  color: var(--accent-text);
+  min-height: 1.5rem;
+}
+
+.contact-links {
+  display: grid;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+}
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.94rem;
+  cursor: pointer;
+  transition:
+    border-color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.contact-link:hover,
+.contact-link:focus-visible {
+  border-color: var(--accent-line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.contact-link svg:first-child {
+  width: 18px;
+  height: 18px;
+  color: var(--accent-text);
+  flex-shrink: 0;
+}
+.contact-link .label {
+  font-weight: 500;
+}
+.contact-link .sub {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  text-align: right;
+}
+
+/* --- Prose / long-form pages -------------------------------------------- */
+
+.page-header {
+  padding-top: clamp(var(--sp-12), 8vw, var(--sp-24));
+  padding-bottom: var(--sp-8);
+}
+.page-header h1 {
+  margin-bottom: var(--sp-4);
+}
+
+.prose {
+  max-width: var(--prose);
+}
+.prose p,
+.prose ul,
+.prose ol {
+  color: var(--text-muted);
+}
+.prose strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.prose h2 {
+  margin-top: var(--sp-12);
+}
+.prose h3 {
+  margin-top: var(--sp-8);
+  color: var(--text);
+}
+
+.pull {
+  margin: var(--sp-8) 0;
+  padding: var(--sp-4) 0 var(--sp-4) var(--sp-6);
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  max-width: var(--prose);
+}
+
+.takeaway {
+  padding: var(--sp-6);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  background: var(--surface);
+}
+.takeaway h3 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+.takeaway p:last-child {
+  margin-bottom: 0;
+}
+
+.stack-item {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+  align-items: baseline;
+}
+.stack-item:last-child {
+  border-bottom: 0;
+}
+.stack-item dt {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.stack-item dd {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+}
+@media (max-width: 620px) {
+  .stack-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-2);
+  }
+}
+
+/* --- Footer ------------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-block: var(--sp-12);
+  margin-top: var(--sp-16);
+}
+.footer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  align-items: center;
+  justify-content: space-between;
+}
+.footer p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-faint);
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+.footer-links li {
+  margin: 0;
+}
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition:
+    color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease);
+}
+.footer-links a:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+.footer-links svg {
+  width: 16px;
+  height: 16px;
+}
+.footer-tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+.footer-tag .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: var(--sp-2);
+  vertical-align: middle;
+}
+
+/* --- Scroll reveal ------------------------------------------------------ */
+
+/* Scoped to .js: without JavaScript nothing is ever hidden, because the
+   observer that would reveal it is never going to run. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 600ms var(--ease),
+    transform 600ms var(--ease);
+}
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- Reduced motion ----------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  .caret {
+    animation: none;
+  }
+}

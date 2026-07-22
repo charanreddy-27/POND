@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="POND">
+  <rect width="32" height="32" rx="8" fill="#0F172A"/>
+  <circle cx="16" cy="17" r="11" fill="none" stroke="#22C55E" stroke-opacity=".22" stroke-width="1.7"/>
+  <circle cx="16" cy="17" r="7" fill="none" stroke="#22C55E" stroke-opacity=".5" stroke-width="1.7"/>
+  <circle cx="16" cy="17" r="2.8" fill="#22C55E"/>
+</svg>

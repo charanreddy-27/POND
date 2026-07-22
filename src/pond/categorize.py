@@ -39,7 +39,7 @@ def load_rules(path: Path | None = None) -> list[tuple[str, str]]:
     rules_file = path or category_rules_path()
     if not rules_file.exists():
         return []
-    data = yaml.safe_load(rules_file.read_text()) or {}
+    data = yaml.safe_load(rules_file.read_text(encoding="utf-8")) or {}
     out: list[tuple[str, str]] = []
     for rule in data.get("rules", []):
         if isinstance(rule, dict) and rule.get("match") and rule.get("category"):

@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>About POND — Charan Reddy Chanda</title>
+    <meta
+      name="description"
+      content="Why POND exists, how it got built month by month, the technical decisions worth defending, and the one that ate an entire May."
+    />
+    <meta name="author" content="Chanda Charan Reddy" />
+    <meta name="theme-color" content="#0F172A" />
+    <link rel="canonical" href="https://pond-cli.vercel.app/about-project" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="POND" />
+    <meta property="og:title" content="About POND — the build" />
+    <meta
+      property="og:description"
+      content="The itch, the timeline, the decisions I'd defend and the ones I'd redo. Seven months of building a local-first personal data warehouse."
+    />
+    <meta property="og:url" content="https://pond-cli.vercel.app/about-project" />
+    <meta property="og:image" content="https://pond-cli.vercel.app/assets/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="POND — query your life." />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="About POND — the build" />
+    <meta
+      name="twitter:description"
+      content="The itch, the timeline, and the technical decisions behind a local-first personal data warehouse."
+    />
+    <meta name="twitter:image" content="https://pond-cli.vercel.app/assets/og.png" />
+
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/assets/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+
+    <script>
+      (function () {
+        document.documentElement.classList.add("js");
+        try {
+          var t = localStorage.getItem("pond-theme");
+          if (t) document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header>
+      <nav class="nav container" aria-label="Primary">
+        <a class="nav-brand" href="/">
+          <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-opacity=".3" stroke-width="2" />
+            <circle cx="16" cy="16" r="7.5" fill="none" stroke="currentColor" stroke-opacity=".65" stroke-width="2" />
+            <circle cx="16" cy="16" r="3" fill="currentColor" />
+          </svg>
+          POND
+        </a>
+
+        <ul class="nav-links">
+          <li class="nav-anchor"><a href="/#how">How it works</a></li>
+          <li class="nav-anchor"><a href="/#features">Features</a></li>
+          <li class="nav-anchor"><a href="/#start">Quickstart</a></li>
+          <li><a href="/about-project" aria-current="page">The build</a></li>
+          <li><a href="/about">About me</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button type="button" id="theme-toggle" class="btn btn-icon" aria-label="Switch to light theme">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" width="18" height="18"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>
+          </button>
+          <a class="btn btn-secondary" href="https://github.com/charanreddy-27/pond" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" /></svg>
+            <span class="btn-label"><span class="visually-hidden">POND on </span>GitHub</span>
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <!-- ============================================================ WHY -->
+      <section class="page-header container">
+        <p class="eyebrow">About the project</p>
+        <h1>Every app knew a slice of my year. None of them talked.</h1>
+        <div class="prose">
+          <p class="lede">
+            Spotify knows what I played at 2am. My bank knows what I ordered afterwards. Google Fit
+            knows I didn't train that week. Every one of them will happily show me a beautiful
+            annual wrap-up about one slice of my life, and not one of them can answer the only
+            question I actually had:
+          </p>
+          <p class="pull">
+            "How much did I spend on food delivery in the weeks I skipped the gym?"
+          </p>
+          <p>
+            That question needs three sources joined on a calendar, and the interesting half of it —
+            <em>skipped</em> — is about rows that don't exist. No dashboard is going to hand you
+            that. So the actual options were: export everything into a spreadsheet and give up
+            around row 40,000, or upload my bank statements to some SaaS that promises to be
+            careful.
+          </p>
+          <p>
+            I did try the spreadsheet. It lasted a weekend. The SaaS option I didn't try, because I
+            have read what "we may share anonymised data with partners" means.
+          </p>
+          <p>
+            POND is the third option. Everything lands in one DuckDB file on my laptop. Questions go
+            in as English, come back as tables. And the one network call in the whole system carries
+            the database <strong>schema</strong> and a sentence — never a row. The model writes the
+            SQL; my machine runs it. That boundary isn't a policy in a README, it's a command:
+            <code>pond schema</code> prints the exact payload before you send anything.
+          </p>
+        </div>
+      </section>
+
+      <!-- ======================================================= TIMELINE -->
+      <section class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">Build timeline</p>
+          <h2>Seven months, one of them mostly bank CSVs</h2>
+          <p>Nights and weekends. The honest version, including the month I'd like back.</p>
+        </div>
+
+        <ol class="timeline">
+          <li data-reveal>
+            <span class="timeline-date">January 2026 · The itch</span>
+            <h3>A spreadsheet, and its swift collapse</h3>
+            <p>
+              Exported Spotify and a year of bank statements into Google Sheets to answer one
+              question. Got as far as manually matching UPI narrations to merchants before
+              admitting this was a database problem wearing a spreadsheet costume.
+            </p>
+          </li>
+
+          <li data-reveal>
+            <span class="timeline-date">February 2026 · Design &amp; scoping</span>
+            <h3>Schema first, importers second</h3>
+            <p>
+              Wrote the curated table definitions and the privacy contract before a single line of
+              import code. Decided the hard constraint early — the LLM sees DDL, never rows — because
+              retrofitting that later is how you end up with a "privacy mode" nobody trusts. Also
+              picked DuckDB over SQLite here, on the grounds that I wanted window functions and
+              <code>date_trunc</code> without installing Postgres.
+            </p>
+          </li>
+
+          <li data-reveal>
+            <span class="timeline-date">March 2026 · First import</span>
+            <h3>Spotify in, and immediately duplicated</h3>
+            <p>
+              The Spotify importer took an afternoon. Then I imported both the "account data" and
+              "extended history" exports and every play from last March appeared twice. Built the
+              sha256 file ledger, felt clever, and discovered it didn't help at all — two different
+              files, same rows. That's where the per-row dedupe key came from.
+            </p>
+          </li>
+
+          <li data-reveal>
+            <span class="timeline-date">April 2026 · English to SQL</span>
+            <h3>The ask pipeline, and a healthy dose of paranoia</h3>
+            <p>
+              Wired up the NL-to-SQL loop: schema doc in, SQL out, execution errors fed back for up
+              to two repair attempts. Then spent longer on the guardrails than on the pipeline
+              itself, because the first version of "is this SQL safe?" was a regex, and regexes lose
+              to semicolons.
+            </p>
+          </li>
+
+          <li data-reveal data-hard="true">
+            <span class="timeline-date">May 2026 · Where it got hard</span>
+            <h3>The month the bank importer ate</h3>
+            <p>
+              Every Indian bank exports CSV differently. Different header rows, different preamble
+              junk, dates as <code>%d/%m/%Y</code> or <code>%d-%b-%Y</code>, amounts as one signed
+              column or separate debit/credit, ₹ symbols, thousands separators, and <code>Cr</code>
+              /<code>Dr</code> suffixes that invert the sign. I wrote heuristics. They worked for
+              HDFC and broke for ICICI. I wrote better heuristics. They broke for the first one
+              again. Around week three I deleted the lot and made it <em>ask</em> — four questions,
+              once per bank, saved to a profile keyed on the header signature. Every import after
+              that is silent. Shipping the question was better engineering than winning the
+              guessing game.
+            </p>
+          </li>
+
+          <li data-reveal>
+            <span class="timeline-date">June 2026 · Absence</span>
+            <h3>Making nothing queryable</h3>
+            <p>
+              Added the <code>days</code> and <code>weeks</code> calendar-spine views, plus
+              <code>pond log</code> as the manual escape hatch for signals with no data trail. This
+              is the change that made the original question answerable — and it also visibly
+              improved the LLM's first-attempt SQL, because "weeks I skipped gym" stopped requiring
+              a clever anti-join and started being a <code>WHERE</code> clause.
+            </p>
+          </li>
+
+          <li data-reveal>
+            <span class="timeline-date">July 2026 · Polish &amp; ship</span>
+            <h3>Tests, CI, and this website</h3>
+            <p>
+              Full pytest suite running against synthetic fixtures only — no real personal data in
+              the repo, ever — plus ruff, GitHub Actions, and a cross-platform encoding fix found by
+              running the suite on Windows for the first time. Then wrote the docs and built this
+              site, because a CLI with no front door is a CLI nobody clones.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- ====================================================== DECISIONS -->
+      <section class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">Technical decisions</p>
+          <h2>Four calls I'd defend in an interview</h2>
+        </div>
+
+        <div class="grid grid-2">
+          <article class="takeaway" data-reveal>
+            <h3>Guardrails are an AST walk, not a blocklist</h3>
+            <p>
+              <strong>Problem:</strong> the model writes SQL that then runs against my real database.
+              Prompt instructions are not a security boundary.
+            </p>
+            <p>
+              <strong>Solution:</strong> parse with sqlglot and walk the tree. Exactly one statement.
+              Must be a <code>Query</code> node. Reject any <code>Insert</code>, <code>Update</code>,
+              <code>Delete</code>, <code>Create</code>, <code>Drop</code>, <code>Attach</code>,
+              <code>Copy</code>, <code>Pragma</code>, <code>Set</code> or raw <code>Command</code>
+              anywhere in the tree, and any function that reaches the filesystem —
+              <code>read_csv</code>, <code>read_parquet</code>, <code>glob</code>,
+              <code>getenv</code>. Un-limited selects get a <code>LIMIT 500</code> appended. A
+              blocklist checks strings; a parser checks meaning.
+            </p>
+          </article>
+
+          <article class="takeaway" data-reveal>
+            <h3>Two-layer idempotency</h3>
+            <p>
+              <strong>Problem:</strong> exports overlap. Re-running an import should never be scary.
+            </p>
+            <p>
+              <strong>Solution:</strong> layer one is a sha256 of the file in an <code>_imports</code>
+              ledger — skip files already processed. Layer two is a deterministic
+              <code>dedupe_key</code> per row (source + natural key), enforced <code>UNIQUE</code>
+              and checked at insert time, which also collapses duplicates <em>within</em> a single
+              batch via a <code>row_number()</code> window. <code>--force</code> re-reads a file;
+              row-level dedupe still refuses to duplicate anything.
+            </p>
+          </article>
+
+          <article class="takeaway" data-reveal>
+            <h3>Calendar spine views over clever anti-joins</h3>
+            <p>
+              <strong>Problem:</strong> the questions worth asking are about gaps, and gaps have no
+              rows.
+            </p>
+            <p>
+              <strong>Solution:</strong> generate them. <code>days</code> is a
+              <code>generate_series</code> over the full range of the data; <code>weeks</code> rolls
+              it up and pre-computes <code>went_to_gym</code> as an <code>EXISTS</code> against
+              activities. Cheap to rebuild, so they're re-created on every connect and can never
+              drift from the code. The side effect nobody warns you about: giving the model a good
+              schema is worth more than giving it a good prompt.
+            </p>
+          </article>
+
+          <article class="takeaway" data-reveal>
+            <h3>Ask the human once, then never again</h3>
+            <p>
+              <strong>Problem:</strong> bank CSV formats are genuinely un-inferable, and a wrong
+              guess silently corrupts financial data.
+            </p>
+            <p>
+              <strong>Solution:</strong> an interactive first-run mapping saved as a profile keyed on
+              the sorted header signature, so the same bank is recognised on every future import
+              even when it shuffles its preamble rows around. In non-interactive contexts it fails
+              loudly with instructions rather than guessing. Sometimes the right amount of
+              automation is "not yet".
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ========================================================== STACK -->
+      <section class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">Tech stack</p>
+          <h2>What's in it, and why that</h2>
+        </div>
+
+        <dl data-reveal>
+          <div class="stack-item">
+            <dt>DuckDB</dt>
+            <dd>
+              An analytics engine that lives in one file with no server. Window functions,
+              <code>generate_series</code>, and real timestamp handling on a laptop — SQLite would
+              have meant hand-rolling half of that.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>sqlglot</dt>
+            <dd>
+              A proper SQL parser with a DuckDB dialect. It's what turns "validate the model's SQL"
+              from wishful string matching into an AST walk.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>Anthropic Claude</dt>
+            <dd>
+              Does one job: schema in, SQL out. Model is configurable, retries are bounded, and the
+              call is entirely optional — <code>pond sql</code> never touches it.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>Typer + Rich</dt>
+            <dd>
+              Typer turns typed function signatures into a CLI with help text for free; Rich makes
+              the output something you'd actually want to read at 1am.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>Pydantic</dt>
+            <dd>
+              Config and bank profiles are validated models, not dictionaries you hope are shaped
+              right. A malformed <code>config.yaml</code> fails at load with a useful message.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>uv</dt>
+            <dd>
+              Locked, reproducible environments in seconds, and <code>uv tool install .</code> puts
+              <code>pond</code> on your PATH without a virtualenv ritual.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>pytest · ruff · GitHub Actions</dt>
+            <dd>
+              56 tests against synthetic fixtures, lint and format enforced in CI. The test suite
+              runs with <code>POND_HOME</code> pointed at a temp directory so it can never touch a
+              real warehouse.
+            </dd>
+          </div>
+          <div class="stack-item">
+            <dt>This site</dt>
+            <dd>
+              Hand-written HTML and CSS, zero dependencies, zero build step, deployed static on
+              Vercel. A page about a local-first tool shouldn't need 400 npm packages to render a
+              headline.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- ========================================================== LINKS -->
+      <section class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">Project links</p>
+          <h2>Go look at it</h2>
+        </div>
+
+        <div class="grid grid-2">
+          <a class="card" href="https://github.com/charanreddy-27/pond" target="_blank" rel="noopener noreferrer" data-reveal>
+            <span class="card-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" /></svg>
+            </span>
+            <h3>Source on GitHub</h3>
+            <p>
+              MIT licensed. Importers, guardrails, the full test suite, and a
+              <code>PROJECT_DEEP_DIVE.md</code> if you want the architecture without the prose.
+            </p>
+            <span class="card-link">
+              charanreddy-27/pond
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            </span>
+          </a>
+
+          <!-- Paste the LinkedIn post URL into href below and delete the aria-disabled note. -->
+          <article class="card" data-reveal>
+            <span class="card-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05a3.74 3.74 0 0 1 3.37-1.85c3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12M7.12 20.45H3.56V9h3.56zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0" /></svg>
+            </span>
+            <h3>The LinkedIn write-up</h3>
+            <p>
+              A shorter version of this page, for people who prefer their engineering stories with a
+              scroll bar. Going up shortly — until then,
+              <a href="https://www.linkedin.com/in/chandacharanreddy/" target="_blank" rel="noopener noreferrer">follow along here</a>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================================================ CTA -->
+      <section class="container">
+        <div class="contact" data-reveal>
+          <p class="eyebrow">What's next</p>
+          <h2>Want to build something — or break something interesting?</h2>
+          <p class="lede">
+            If you've read this far you're probably the kind of person I like working with. Tell me
+            what you're building.
+          </p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="/about#main">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
+              Get in touch
+            </a>
+            <a class="btn btn-secondary" href="https://cal.com/charanreddy-27/30min" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+              Book a call
+            </a>
+            <a class="btn btn-ghost" href="https://www.charanreddy.dev" target="_blank" rel="noopener noreferrer">
+              See the other projects
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div>
+          <p><strong style="color: var(--text-muted)">POND</strong> — built by Chanda Charan Reddy.</p>
+          <p class="footer-tag"><span class="dot"></span>Crafted with intent · Available for new projects</p>
+        </div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://www.charanreddy.dev" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20z" /></svg>
+              Portfolio
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/charanreddy-27" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3z" /></svg>
+              GitHub
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/in/chandacharanreddy/" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05a3.74 3.74 0 0 1 3.37-1.85c3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12M7.12 20.45H3.56V9h3.56zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0" /></svg>
+              LinkedIn
+            </a>
+          </li>
+          <li>
+            <a href="https://cal.com/charanreddy-27/30min" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+              Book a call
+            </a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <script src="/assets/js/main.js" defer></script>
+  </body>
+</html>

@@ -76,7 +76,7 @@ def load_profiles() -> list[BankProfile]:
     path = profiles_path()
     if not path.exists():
         return []
-    data = yaml.safe_load(path.read_text()) or {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
     return [BankProfile.model_validate(p) for p in data.get("profiles", [])]
 
 
@@ -85,8 +85,13 @@ def save_profile(profile: BankProfile) -> None:
     profiles = [p for p in load_profiles() if p.name != profile.name]
     profiles.append(profile)
     profiles_path().parent.mkdir(parents=True, exist_ok=True)
-    with open(profiles_path(), "w") as f:
-        yaml.safe_dump({"profiles": [p.model_dump() for p in profiles]}, f, sort_keys=False)
+    with open(profiles_path(), "w", encoding="utf-8") as f:
+        yaml.safe_dump(
+            {"profiles": [p.model_dump() for p in profiles]},
+            f,
+            sort_keys=False,
+            allow_unicode=True,
+        )
 
 
 def _signature(headers: list[str]) -> list[str]:

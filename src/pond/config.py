@@ -81,7 +81,7 @@ def load_config() -> Config:
     if not path.exists():
         cfg = Config()
     else:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         cfg = Config.model_validate(data)
     # DECISION: when POND_HOME is overridden but config still points at the
@@ -108,14 +108,14 @@ def init_home(whatsapp_name: str | None = None, timezone: str | None = None) -> 
 
     path = config_path()
     if not path.exists() or whatsapp_name or timezone:
-        with open(path, "w") as f:
-            yaml.safe_dump(cfg.model_dump(), f, sort_keys=False)
+        with open(path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(cfg.model_dump(), f, sort_keys=False, allow_unicode=True)
 
     rules_dst = home / DEFAULT_CATEGORY_RULES
     if not rules_dst.exists():
         rules_src = _starter_rules_path()
         if rules_src.exists():
-            rules_dst.write_text(rules_src.read_text())
+            rules_dst.write_text(rules_src.read_text(encoding="utf-8"), encoding="utf-8")
     return cfg
 
 

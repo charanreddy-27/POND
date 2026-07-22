@@ -29,7 +29,7 @@ def test_dayfirst_detection():
 
 
 def test_android_parse(fixtures):
-    text = (fixtures / "whatsapp" / "WhatsApp Chat with Rahul.txt").read_text()
+    text = (fixtures / "whatsapp" / "WhatsApp Chat with Rahul.txt").read_text(encoding="utf-8")
     msgs, warnings = parse_chat(text, TZ)
     assert len(msgs) == 5  # system line dropped
     assert msgs[1].text == "yeah 7pm\ncourt 3 as usual"  # continuation joined
@@ -40,7 +40,7 @@ def test_android_parse(fixtures):
 
 
 def test_ios_parse(fixtures):
-    text = (fixtures / "whatsapp" / "Gym Buddies_chat.txt").read_text()
+    text = (fixtures / "whatsapp" / "Gym Buddies_chat.txt").read_text(encoding="utf-8")
     msgs, _ = parse_chat(text, TZ)
     assert len(msgs) == 4
     assert msgs[2].is_media  # "image omitted" behind an invisible mark

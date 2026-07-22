@@ -72,7 +72,8 @@ def test_recategorize_after_rule_edit(hdfc, con, cfg, fixtures, pond_env):
     rules = pond_env / "category_rules.yaml"
     rules.write_text(
         "rules:\n  - match: 'acme'\n    category: salary\n"
-        "  - match: 'swiggy'\n    category: food_delivery\n"
+        "  - match: 'swiggy'\n    category: food_delivery\n",
+        encoding="utf-8",
     )
     recategorize_all(con)
     salary = con.execute("SELECT category FROM transactions WHERE amount > 0").fetchone()[0]
